@@ -1,0 +1,35 @@
+services:
+  db:
+    image: 'timescale/timescaledb:latest-pg15'
+    container_name: evcs
+    environment:
+      POSTGRES_USER: evcs
+      POSTGRES_PASSWORD: evcs_pass
+      POSTGRES_DB: evcs
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+#  app:
+#    build: .
+#    container_name: evcs_ocpp_app
+#    command: ["npm", "run", "dev"]
+#    environment:
+#      DATABASE_URL: postgres://evcs:evcs_pass@db:5432/evcs
+#      OCPP_PORT: "8080"
+#      HTTP_PORT: "3000"
+#    ports:
+#      - "8080:8080" # WebSocket OCPP
+#      - "3000:3000" # HTTP API for config
+#    depends_on:
+#      - db
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: D:\Github\nodeJs\ev-ocpp-service\ev-ocpp-service\db\data

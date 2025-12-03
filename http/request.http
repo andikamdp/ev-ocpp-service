@@ -1,0 +1,154 @@
+### 1. Check app health (optional)
+GET http://localhost:8080/api/charge-points/CP_1/config
+
+###
+
+# 2. Set Station TAB configuration keys
+PUT http://localhost:8080/api/charge-points/CP_1/config
+Content-Type: application/json
+
+{
+  "key": "HeartbeatInterval",
+  "value": "60",
+  "readOnly": false
+}
+
+###
+
+PUT http://localhost:8080/api/charge-points/CP_1/config
+Content-Type: application/json
+
+{
+  "key": "NumberOfConnectors",
+  "value": "2",
+  "readOnly": false
+}
+
+###
+
+PUT http://localhost:8080/api/charge-points/CP_1/config
+Content-Type: application/json
+
+{
+  "key": "AuthorizeRemoteTxRequests",
+  "value": "true",
+  "readOnly": false
+}
+
+###
+
+# Get all config keys for CP_1
+GET http://localhost:8080/api/charge-points/CP_1/config
+
+###
+
+# 3. WebSocket: BootNotification - CP registration
+WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
+Content-Type: application/json
+Sec-WebSocket-Protocol: ocpp1.6
+
+["2","BOOT-1","BootNotification",{
+  "chargePointModel": "DemoModel",
+  "chargePointVendor": "DemoVendor",
+  "chargePointSerialNumber": "CP-SN-001",
+  "chargeBoxSerialNumber": "BOX-SN-001",
+  "firmwareVersion": "1.0.0",
+  "iccid": "899999999999",
+  "imsi": "1234567890",
+  "meterType": "AC",
+  "meterSerialNumber": "MTR-001"
+}]
+
+###
+
+# 4. WebSocket: Heartbeat
+WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
+Content-Type: application/json
+Sec-WebSocket-Protocol: ocpp1.6
+
+["2","HB-1","Heartbeat",{}]
+
+###
+
+# 5. WebSocket: StatusNotification
+WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
+Content-Type: application/json
+Sec-WebSocket-Protocol: ocpp1.6
+
+["2","STATUS-1","StatusNotification",{
+  "connectorId": 1,
+  "errorCode": "NoError",
+  "status": "Available",
+  "timestamp": "2025-12-02T06:00:00Z",
+  "info": "Connector ready"
+}]
+
+###
+
+# 6. WebSocket: StartTransaction (will check RFID / idTag authorization)
+# Make sure 'TEST_TAG_1' exists and is authorized in rfid_tags table.
+WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
+Content-Type: application/json
+Sec-WebSocket-Protocol: ocpp1.6
+
+["2","START-1","StartTransaction",{
+  "connectorId": 1,
+  "idTag": "TEST_TAG_1",
+  "meterStart": 1000,
+  "timestamp": "2025-12-02T06:05:00Z"
+}]
+
+###
+
+# 7. WebSocket: StopTransaction (use returned transactionId, here we assume 1 for demo)
+WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
+Content-Type: application/json
+Sec-WebSocket-Protocol: ocpp1.6
+
+["2","STOP-1","StopTransaction",{
+  "transactionId": 1,
+  "meterStop": 1500,
+  "timestamp": "2025-12-02T06:35:00Z",
+  "reason": "Local"
+}]
+
+###
+
+# 8. WebSocket: MeterValues for the same transaction
+WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
+Content-Type: application/json
+Sec-WebSocket-Protocol: ocpp1.6
+
+["2","MV-1","MeterValues",{
+  "connectorId": 1,
+  "transactionId": 1,
+  "meterValue": [
+    {
+      "timestamp": "2025-12-02T06:10:00Z",
+      "sampledValue": [
+        {
+          "value": "1100",
+          "measurand": "Energy.Active.Import.Register",
+          "unit": "Wh",
+          "context": "Sample.Periodic"
+        }
+      ]
+    },
+    {
+      "timestamp": "2025-12-02T06:20:00Z",
+      "sampledValue": [
+        {
+          "value": "1300",
+          "measurand": "Energy.Active.Import.Register",
+          "unit": "Wh",
+          "context": "Sample.Periodic"
+        }
+      ]
+    }
+  ]
+}]
+
+###
+
+# 9. Query the 15-minute energy aggregate from TimescaleDB
+GET http://localhost:8080/api/charge-points/CP_1/energy-15m
