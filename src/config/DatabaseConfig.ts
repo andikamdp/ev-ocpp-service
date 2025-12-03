@@ -1,5 +1,5 @@
-import { Pool } from "pg";
-import { DATABASE_URL } from "./config";
+import {Pool} from "pg";
+import {DATABASE_URL} from "./ParameterConfig";
 
 export const pool = new Pool({
     connectionString: DATABASE_URL

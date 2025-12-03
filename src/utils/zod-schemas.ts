@@ -1,4 +1,4 @@
-import { z } from "zod";
+import {z} from "zod";
 
 export const BootNotificationReqSchema = z.object({
     chargePointModel: z.string(),
@@ -51,7 +51,7 @@ export const StartTransactionResSchema = z.object({
 });
 
 export const StopTransactionReqSchema = z.object({
-    transactionId:z.coerce.number(),
+    transactionId: z.coerce.number(),
     idTag: z.string().optional(),
     meterStop: z.number(),
     timestamp: z.string(),
@@ -66,22 +66,22 @@ export const StopTransactionResSchema = z.object({
         .optional()
 });
 
+export const SampledValueSchema = z.object({
+    value: z.string(),
+    measurand: z.string().optional(),
+    unit: z.string().optional(),
+    context: z.string().optional()
+});
+
+export const MeterValueSchema = z.object({
+    timestamp: z.string(),
+    sampledValue: z.array(SampledValueSchema)
+});
+
 export const MeterValuesReqSchema = z.object({
     connectorId: z.number().int(),
     transactionId: z.coerce.number(),
-    meterValue: z.array(
-        z.object({
-            timestamp: z.string(),
-            sampledValue: z.array(
-                z.object({
-                    value: z.string(), // numeric string
-                    measurand: z.string().optional(),
-                    unit: z.string().optional(),
-                    context: z.string().optional()
-                })
-            )
-        })
-    )
+    meterValue: z.array(MeterValueSchema)
 });
 
 export const MeterValuesResSchema = z.object({});

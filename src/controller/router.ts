@@ -1,6 +1,6 @@
 import WebSocket from "ws";
-import {MessageTypeId} from "./types";
-import type {OcppAction, OcppCall, OcppCallResult, OcppCallError} from "./types";
+import {MessageTypeId} from "../utils/types";
+import type {OcppAction, OcppCall, OcppCallResult, OcppCallError} from "../utils/types";
 import {
     handleBootNotification,
     handleHeartbeat,
@@ -9,9 +9,9 @@ import {
     handleStopTransaction,
     handleMeterValues, handleAuthorize,
 
-} from "./handlers";
+} from "../service/handlers";
 
-type HandlerFn = (cpId: string, payload: unknown) => Promise<any>;
+type HandlerFn = (requestId: string, cpId: string, payload: unknown) => Promise<any>;
 
 const handlers: Record<OcppAction, HandlerFn> = {
     BootNotification: handleBootNotification,
@@ -38,25 +38,25 @@ export function registerOcppConnection(ws: WebSocket, chargePointId: string) {
             console.error("Invalid OCPP frame:", msg);
             return;
         }
-
+        console.info("incomming request request-id:%s | chargePointId:%s | request-type-id:%s | payload:%s ", msg[1], chargePointId, msg[2], JSON.stringify(msg[3]));
         const messageTypeId = Number(msg[0]) as MessageTypeId;
 
         switch (messageTypeId) {
             case MessageTypeId.CALL:
-                await handleCall(ws, chargePointId, msg as OcppCall);
+                await handleCall(ws, msg[1], chargePointId, msg as OcppCall);
                 break;
             case MessageTypeId.CALLRESULT:
             case MessageTypeId.CALLERROR:
                 // For now we’re acting purely as central system; usually we’d log responses
-                console.log("Received response from CP", chargePointId, msg);
+                console.info("Received response from CP request-id:%s ", msg[1]);
                 break;
             default:
-                console.error("Unsupported MessageTypeId", messageTypeId);
+                console.error("Unsupported MessageTypeId request-id:%s ", msg[1]);
         }
     });
 }
 
-async function handleCall(ws: WebSocket, chargePointId: string, call: OcppCall) {
+async function handleCall(ws: WebSocket, requestId: string, chargePointId: string, call: OcppCall) {
     const [, uniqueId, action, payload] = call;
     const actionName = action as OcppAction;
     const handler = handlers[actionName];
@@ -74,7 +74,7 @@ async function handleCall(ws: WebSocket, chargePointId: string, call: OcppCall) 
     }
 
     try {
-        const resPayload = await handler(chargePointId, payload);
+        const resPayload = await handler(requestId, chargePointId, payload);
         const response: OcppCallResult = [MessageTypeId.CALLRESULT, uniqueId, resPayload];
         ws.send(JSON.stringify(response));
     } catch (err: any) {

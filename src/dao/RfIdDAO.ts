@@ -1,8 +1,9 @@
-import { query } from "../db";
+import {query} from "../config/DatabaseConfig";
 
 export async function isIdTagAuthorized(idTag: string): Promise<boolean> {
+
     const rows = await query<{ is_authorized: boolean }>(
-        "SELECT is_authorized FROM rfid_tags WHERE id_tag = $1",
+        "SELECT is_authorized FROM tbl_rfid_tags_tm WHERE id_tag = $1",
         [idTag]
     );
 
