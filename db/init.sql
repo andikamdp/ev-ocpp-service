@@ -10,16 +10,6 @@ CREATE TABLE tbl_charge_points_tm (
                                last_boot TIMESTAMPTZ
 );
 
-CREATE TABLE ocpp_configuration (
-                                    id BIGSERIAL PRIMARY KEY,
-                                    charge_point_id TEXT NOT NULL REFERENCES tbl_charge_points_tm(id) ON DELETE CASCADE,
-                                    key TEXT NOT NULL,
-                                    value TEXT NOT NULL,
-                                    read_only BOOLEAN NOT NULL DEFAULT FALSE,
-                                    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-                                    UNIQUE (charge_point_id, key)
-);
-
 -- Authorized RFID tags
 CREATE TABLE tbl_rfid_tags_tm (
                            id_tag TEXT PRIMARY KEY,
