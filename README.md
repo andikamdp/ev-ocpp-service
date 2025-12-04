@@ -49,5 +49,7 @@ It handles communication with EV charging stations (charge points), processes OC
 - `dotenv` (optional) – environment variable loader
 ---
 
-
+## Database schema:
 ![img.png](img.png)
+# high level system diagram
+![img_1.png](img_1.png)
