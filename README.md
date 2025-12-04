@@ -1,32 +1,53 @@
-# EV OCPP 1.6j Charging Backend
+# 🚗⚡ EV OCPP Service (OCPP 1.6J)
 
-## Features
-- Full OCPP 1.6 CALL/CALLRESULT system
-- BootNotification, Authorize, Heartbeat
-- StartTransaction, StopTransaction
-- MeterValues stored in TimescaleDB hypertable
-- Billing engine (PricePerKWh)
-- WebSocket Connection Registry
-- HTTP API for configuration
-- Zod-based message validation
-- Docker-ready deployment
+EV OCPP Service is a backend system built with **Node.js + TypeScript** that implements the **OCPP 1.6J protocol** over WebSockets.  
+It handles communication with EV charging stations (charge points), processes OCPP messages, validates payloads using **Zod**, and stores transaction data into **PostgreSQL**.
 
-## Architecture
-(diagram provided)
+---
 
-## Database Schema
-(tables explanation)
+## 📌 Features
 
-## How to Run
-docker-compose up -d
-npm install
-npm start
+- Full WebSocket server for **OCPP 1.6J**
+- Supports all core OCPP messages:
+    - BootNotification
+    - Heartbeat
+    - Authorize
+    - StatusNotification
+    - StartTransaction
+    - MeterValues
+    - StopTransaction
+- Schema validation using **Zod**
+- PostgreSQL integration for persisting:
+    - ChargePoint sessions
+    - Transactions
+    - Meter values
+- Structured project architecture using TypeScript
+- Configurable environment (port, DB, etc.)
+- Property-based config support (`base.properties`, `dev.properties`, etc.)
 
-## Testing with .http
-(api.http examples)
+---
 
-## Log Format
-(JSON structured logs)
+## 📦 Project Information
 
-## TODO Roadmap
-(...)
+| Item | Value |
+|------|--------|
+| **Project Name** | EV OCPP Service |
+| **Version** | 0.1.0 <!-- update manually if needed --> |
+| **Language** | Node.js + TypeScript |
+| **OCPP Version** | 1.6J |
+| **Database** | PostgreSQL |
+| **Protocol** | WebSocket (ws://) |
+
+---
+
+## 🛠 Tech Stack & Dependencies
+
+### **Core Dependencies**
+- `ws` – WebSocket server
+- `zod` – Runtime validation for OCPP payloads
+- `pg` – PostgreSQL client
+- `dotenv` (optional) – environment variable loader
+---
+
+
+![img.png](img.png)
