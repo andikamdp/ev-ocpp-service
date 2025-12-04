@@ -86,7 +86,7 @@ Sec-WebSocket-Protocol: ocpp1.6
 ###
 
 # 6. WebSocket: StartTransaction (will check RFID / idTag authorization)
-# Make sure 'TEST_TAG_1' exists and is authorized in rfid_tags table.
+# Make sure 'TEST_TAG_1' exists and is authorized in tbl_rfid_tags_tm table.
 WEBSOCKET ws://localhost:8080/ocpp?cpId=CP_1&ocppVersion=1.6&rfidTag=TEST_TAG_1
 Content-Type: application/json
 Sec-WebSocket-Protocol: ocpp1.6

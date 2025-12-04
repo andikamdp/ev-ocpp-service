@@ -1,8 +1,10 @@
+import {loadConfig} from "./config/config";
+loadConfig(process.env.APP_ENV || "dev");
+import "dotenv/config";
 import http from "http";
 import WebSocket, {WebSocketServer} from "ws";
 import express from "express";
 import {registerOcppConnection} from "./controller/router";
-import {OCPP_PORT} from "./config/ParameterConfig";
 
 const app = express();
 app.use(express.json());
@@ -12,8 +14,8 @@ const httpServer = http.createServer(app);
 // WebSocket server for OCPP (WS/WSS is controlled by reverse proxy / TLS termination)
 const wss = new WebSocketServer({server: httpServer});
 
-httpServer.listen(OCPP_PORT, () => {
-    console.log(`OCPP WebSocket + HTTP API listening on port ${OCPP_PORT}`);
+httpServer.listen(parseInt(process.env.OCPP_PORT || "8080", 10), () => {
+    console.log(`OCPP WebSocket + HTTP API listening on port ${process.env.OCPP_PORT}`);
 });
 
 wss.on("connection", (ws: WebSocket, req) => {

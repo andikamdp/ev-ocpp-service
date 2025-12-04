@@ -90,7 +90,10 @@ async function handleCall(ws: WebSocket, requestId: string, chargePointId: strin
             }
         }
         // Don't let console.error try to inspect weird objects
-        console.error("Error handling call:", msg);
+        console.error("Error handling call:", {
+            error: err?.message,
+            stack: err?.stack
+        });
 
         const errorResponse: OcppCallError = [
             MessageTypeId.CALLERROR,

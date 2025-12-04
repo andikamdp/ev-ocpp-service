@@ -1,6 +1,8 @@
+version: "3.9"
+
 services:
   db:
-    image: 'timescale/timescaledb:latest-pg15'
+    image: timescale/timescaledb:latest-pg17
     container_name: evcs
     environment:
       POSTGRES_USER: evcs
@@ -11,20 +13,33 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ev_ocpp -d ev_ocpp_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-#  app:
-#    build: .
-#    container_name: evcs_ocpp_app
-#    command: ["npm", "run", "dev"]
-#    environment:
-#      DATABASE_URL: postgres://evcs:evcs_pass@db:5432/evcs
-#      OCPP_PORT: "8080"
-#      HTTP_PORT: "3000"
-#    ports:
-#      - "8080:8080" # WebSocket OCPP
-#      - "3000:3000" # HTTP API for config
-#    depends_on:
-#      - db
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ev_ocpp_service
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+
+      # DB connection (adjust to your db.ts)
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: evcs
+      DB_PASSWORD: evcs_pass
+      DB_NAME: evcs
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
 
 volumes:
   db_data:
